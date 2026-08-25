@@ -29,7 +29,7 @@ Settings groups them into four types:
 
 | Type | Providers |
 | --- | --- |
-| **API providers** — first-party endpoints from the labs that build the models | Mistral, Anthropic, DeepSeek, Qwen, OpenAI, Grok (xAI), Kimi (Moonshot), Meta |
+| **API providers** — first-party endpoints from the labs that build the models | Mistral, Anthropic, DeepSeek, GLM (Z.ai), Qwen, OpenAI, Grok (xAI), Kimi (Moonshot) |
 | **Routers & gateways** — one key, many vendors | [Cortecs](https://cortecs.ai/) (EU-hosted, GDPR-focused, 150+ endpoints), Groq, Together AI, OpenRouter |
 | **Local** — nothing leaves your machine | Ollama |
 | **Custom** | any other OpenAI-compatible endpoint |
@@ -45,7 +45,7 @@ catalogue from its `/models` endpoint, which matters most for routers whose line
 | **Optimizer** | Iteratively improves the prompt. Live progress, per-generation scores, per-test cards, a working Stop button. |
 | **Test suite** | Inspect and edit the cases every prompt is scored against; restore any archived configuration. |
 | **History** | Every past run with its baseline, best score, improvement, and event log. |
-| **Models** | Download any GGUF repo from Hugging Face, choose the quant, switch or delete the active model. |
+| **Models** | Download any GGUF repo from Hugging Face, choose the quant, switch or delete the active model. Progress is split into transfer and file reconstruction. |
 | **Assistant** | Change prompts, criteria, weights, and test cases by talking to the LLM. It edits through tools, so changes are surgical and validated. |
 | **Settings** | Provider, API key, base URL, model (with per-role overrides), Hugging Face token, app log. |
 
@@ -53,8 +53,8 @@ catalogue from its `/models` endpoint, which matters most for routers whose line
 
 ```bash
 python cli.py optimize --iterations 3 --sample 30
-python cli.py download https://huggingface.co/google/gemma-4-E2B-it
-python cli.py download https://huggingface.co/owner/repo/blob/main/model.Q4_K_M.gguf
+python cli.py download unsloth/gemma-4-E2B-it-GGUF
+python cli.py download https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/blob/main/gemma-4-E2B-it-Q4_K_M.gguf
 python cli.py models
 python cli.py runs
 ```

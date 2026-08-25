@@ -49,6 +49,11 @@ def status(title: str, detail: str = "", tone: str = "", fraction: float | None 
     )
 
 
+def stack(blocks: list[str]) -> str:
+    """Several status blocks shown one under the other as a single readout."""
+    return f'<div class="pt-stack">{"".join(blocks)}</div>'
+
+
 def empty(message: str) -> str:
     return f'<div class="pt-empty">{escape(message)}</div>'
 

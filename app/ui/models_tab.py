@@ -9,7 +9,8 @@ from app.ui import components as ui
 logger = get_logger(__name__)
 
 EXAMPLES = [
-    "unsloth/gemma-3-4b-it-GGUF",
+    "unsloth/gemma-4-E2B-it-GGUF",
+    "https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/blob/main/gemma-4-E2B-it-Q4_K_M.gguf",
     "https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF",
     "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/blob/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
 ]
@@ -69,6 +70,45 @@ def _fetch_files(reference: str):
     )
 
 
+def _gb(num_bytes: int | None) -> str:
+    return f"{(num_bytes or 0) / 1024**3:.2f} GB"
+
+
+def _fraction(done_bytes: int, total_bytes: int | None) -> float:
+    return min(done_bytes / total_bytes, 1.0) if total_bytes else 0.0
+
+
+def _stage(title: str, done_bytes: int, total_bytes: int | None, state: str) -> str:
+    """One line of the two-stage download readout: idle, running or finished."""
+    tones = {"idle": "", "running": "running", "done": "ok"}
+    detail = _gb(done_bytes)
+    if total_bytes:
+        detail += f" of {_gb(total_bytes)}"
+    if state == "idle":
+        detail = "waiting"
+    return ui.status(title, detail, tones[state], 1.0 if state == "done" else _fraction(done_bytes, total_bytes))
+
+
+def _progress(job: downloader.DownloadJob, tail: str = "") -> str:
+    """Transfer and reconstruction shown as two separate bars, so neither hides the other."""
+    transferring = job.phase in {"pending", "downloading"}
+    if transferring:
+        assemble_state = "idle"
+    elif job.phase == "assembling":
+        assemble_state = "running"
+    else:
+        assemble_state = "done"
+
+    blocks = [
+        _stage(f"Downloading {job.filename}", job.downloaded_bytes, job.total_bytes,
+               "running" if transferring else "done"),
+        _stage("Reconstructing file in models/", job.assembled_bytes, job.total_bytes, assemble_state),
+    ]
+    if tail:
+        blocks.append(tail)
+    return ui.stack(blocks)
+
+
 def _download(repo_state: dict, filename: str):
     if not repo_state or not filename:
         yield ui.status("Nothing to download", "Fetch a repo and pick a file first.", "warn"), gr.update(), gr.update()
@@ -78,21 +118,12 @@ def _download(repo_state: dict, filename: str):
     job = downloader.start_download(repo_state["repo_id"], filename, repo_state.get("revision", "main"), total)
 
     for update in downloader.poll(job, interval=1.0):
-        if update.status == "downloading":
-            done_gb = update.downloaded_bytes / 1024**3
-            total_gb = (update.total_bytes or 0) / 1024**3
-            detail = f"{done_gb:.2f} GB of {total_gb:.2f} GB" if total_gb else f"{done_gb:.2f} GB"
-            yield (
-                ui.status(f"Downloading {filename}", detail, "running", update.fraction),
-                gr.update(),
-                gr.update(),
-            )
-        elif update.status == "pending":
-            yield ui.status("Starting download…", filename, "running", 0.0), gr.update(), gr.update()
+        if not update.done:
+            yield _progress(update), gr.update(), gr.update()
 
-    if job.status == "completed":
+    if job.phase == "completed":
         yield (
-            ui.status("Download complete", job.message, "ok", 1.0),
+            _progress(job, ui.status("Download complete", job.message, "ok")),
             _installed_table(),
             gr.update(choices=_model_choices(), value=job.local_path),
         )
@@ -155,7 +186,7 @@ def build(header: gr.HTML, render_header) -> None:
     with gr.Row():
         reference_box = gr.Textbox(
             label="Repo id or URL",
-            placeholder="unsloth/gemma-3-4b-it-GGUF   or   https://huggingface.co/…",
+            placeholder="unsloth/gemma-4-E2B-it-GGUF   or   https://huggingface.co/…",
             scale=4,
         )
         fetch_btn = gr.Button("Fetch files", variant="secondary", scale=1)

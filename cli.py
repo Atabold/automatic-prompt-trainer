@@ -68,12 +68,17 @@ def cmd_download(args: argparse.Namespace) -> int:
     print(f"\nDownloading {filename}…")
     job = downloader.start_download(ref.repo_id, filename, ref.revision, sizes.get(filename))
     for update in downloader.poll(job, interval=2.0):
-        if update.status == "downloading" and update.total_bytes:
-            print(f"  {update.fraction * 100:5.1f}%  "
-                  f"{update.downloaded_bytes / 1024**3:.2f}/{update.total_bytes / 1024**3:.2f} GB",
-                  flush=True)
+        if not update.total_bytes:
+            continue
+        total_gb = update.total_bytes / 1024**3
+        if update.phase == "downloading":
+            print(f"  transfer    {update.transfer_fraction * 100:5.1f}%  "
+                  f"{update.downloaded_bytes / 1024**3:.2f}/{total_gb:.2f} GB", flush=True)
+        elif update.phase == "assembling":
+            print(f"  reconstruct {update.assemble_fraction * 100:5.1f}%  "
+                  f"{update.assembled_bytes / 1024**3:.2f}/{total_gb:.2f} GB", flush=True)
     print(job.message)
-    return 0 if job.status == "completed" else 1
+    return 0 if job.phase == "completed" else 1
 
 
 def cmd_models(_: argparse.Namespace) -> int:

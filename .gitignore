@@ -35,6 +35,7 @@ models/**/*.gguf
 data/test_runs/
 data/archive/
 data/models_registry.json
+data/config.json
 logs/
 
 # IDE and OS files

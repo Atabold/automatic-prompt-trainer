@@ -102,6 +102,7 @@ CSS = """
 .pt-status.bad     { border-left: 3px solid var(--pt-bad); }
 .pt-status .pt-status-title { font-weight: 600; }
 .pt-status .pt-status-detail { color: var(--pt-muted); }
+.pt-stack { display: flex; flex-direction: column; gap: 9px; }
 .pt-spinner {
   width: 13px; height: 13px; flex: none; border-radius: 50%;
   border: 2px solid var(--pt-line); border-top-color: #6366f1;

@@ -123,36 +123,63 @@ def recommend(files: list[dict]) -> str | None:
 
 @dataclass
 class DownloadJob:
+    """Two-stage progress: bytes pulled from the hub, then the file rebuilt in models/.
+
+    huggingface_hub streams into a `.incomplete` staging file and only afterwards moves it
+    to its final name. On a multi-GB GGUF that second stage is a visible copy, so it gets
+    its own phase and its own byte counter instead of hiding behind a stalled 100% bar.
+    """
+
     repo_id: str
     filename: str
     revision: str = "main"
     total_bytes: int | None = None
     downloaded_bytes: int = 0
-    status: str = "pending"
+    assembled_bytes: int = 0
+    phase: str = "pending"
     message: str = ""
     local_path: str = ""
     _thread: threading.Thread | None = field(default=None, repr=False)
 
-    @property
-    def fraction(self) -> float:
+    def _fraction(self, done: int) -> float:
         if not self.total_bytes:
             return 0.0
-        return min(self.downloaded_bytes / self.total_bytes, 1.0)
+        return min(done / self.total_bytes, 1.0)
+
+    @property
+    def transfer_fraction(self) -> float:
+        return self._fraction(self.downloaded_bytes)
+
+    @property
+    def assemble_fraction(self) -> float:
+        return self._fraction(self.assembled_bytes)
 
     @property
     def done(self) -> bool:
-        return self.status in {"completed", "failed"}
+        return self.phase in {"completed", "failed"}
 
 
-def _measure(destination: Path, filename: str) -> int:
-    """Bytes on disk for this download, including huggingface_hub's .incomplete staging files."""
+@dataclass
+class _Snapshot:
+    staging_bytes: int
+    final_bytes: int
+    staging_active: bool
+
+
+def _snapshot(destination: Path, filename: str) -> _Snapshot:
+    """What is on disk right now: staging bytes still streaming, plus the final file's size."""
     final = destination / filename
-    if final.exists():
-        return final.stat().st_size
-    staging = destination / ".cache" / "huggingface" / "download"
-    if staging.exists():
-        return sum(path.stat().st_size for path in staging.rglob("*.incomplete") if path.is_file())
-    return 0
+    final_bytes = final.stat().st_size if final.exists() else 0
+
+    staging_dir = destination / ".cache" / "huggingface" / "download"
+    staging_bytes, staging_active = 0, False
+    if staging_dir.exists():
+        prefix = Path(filename).name
+        for path in staging_dir.rglob("*.incomplete"):
+            if path.is_file() and path.name.startswith(prefix):
+                staging_bytes += path.stat().st_size
+                staging_active = True
+    return _Snapshot(staging_bytes=staging_bytes, final_bytes=final_bytes, staging_active=staging_active)
 
 
 def start_download(repo_id: str, filename: str, revision: str = "main", total_bytes: int | None = None) -> DownloadJob:
@@ -160,7 +187,7 @@ def start_download(repo_id: str, filename: str, revision: str = "main", total_by
     job = DownloadJob(repo_id=repo_id, filename=filename, revision=revision, total_bytes=total_bytes)
 
     def worker() -> None:
-        job.status = "downloading"
+        job.phase = "downloading"
         job.message = f"Downloading {filename} from {repo_id}…"
         logger.info("Starting download %s :: %s", repo_id, filename)
         try:
@@ -172,14 +199,16 @@ def start_download(repo_id: str, filename: str, revision: str = "main", total_by
                 token=secrets_store.get_hf_token() or None,
             )
             job.local_path = path
-            job.downloaded_bytes = Path(path).stat().st_size
-            job.total_bytes = job.total_bytes or job.downloaded_bytes
+            size = Path(path).stat().st_size
+            job.total_bytes = job.total_bytes or size
+            job.downloaded_bytes = max(job.downloaded_bytes, size)
+            job.assembled_bytes = size
             registry.record(repo_id, filename, path)
-            job.status = "completed"
+            job.phase = "completed"
             job.message = f"Downloaded to {path}"
             logger.info("Download complete: %s", path)
         except Exception as exc:
-            job.status = "failed"
+            job.phase = "failed"
             job.message = f"{type(exc).__name__}: {exc}"
             logger.exception("Download failed for %s :: %s", repo_id, filename)
 
@@ -189,10 +218,29 @@ def start_download(repo_id: str, filename: str, revision: str = "main", total_by
     return job
 
 
+def _advance(job: DownloadJob) -> None:
+    """Move the job between the transfer and reconstruction phases from what disk shows."""
+    seen = _snapshot(WEIGHTS_DIR, job.filename)
+
+    if job.phase in {"pending", "downloading"}:
+        if seen.staging_active:
+            job.downloaded_bytes = max(job.downloaded_bytes, seen.staging_bytes)
+            job.phase = "downloading"
+        elif seen.final_bytes or job.downloaded_bytes:
+            # Staging is gone: everything is transferred and the hub is now putting the
+            # file in place under its real name.
+            job.downloaded_bytes = max(job.downloaded_bytes, job.total_bytes or seen.final_bytes)
+            job.phase = "assembling"
+            job.message = f"Reconstructing {job.filename} in models/…"
+
+    if job.phase == "assembling":
+        job.assembled_bytes = max(job.assembled_bytes, seen.final_bytes)
+
+
 def poll(job: DownloadJob, interval: float = 1.0):
     """Yield the job as it progresses, measuring bytes on disk between checks."""
     while not job.done:
-        job.downloaded_bytes = max(job.downloaded_bytes, _measure(WEIGHTS_DIR, job.filename))
+        _advance(job)
         yield job
         time.sleep(interval)
     yield job
