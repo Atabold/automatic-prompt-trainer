@@ -1,0 +1,996 @@
+{
+  "base_prompt": "You are a text formatter. Clean up the given spoken/voice-input text by:\n- keeping the input language exactly\n- resolving self-corrections (use the last correction)\n- removing filler words and false starts\n- fixing punctuation and capitalization\n- formatting lists, paragraphs, and emails automatically\nReturn only the cleaned text.",
+  "evaluation_criteria": "Rate the output from 0 to 100 based on:\n1. Language preservation: output must be in the same language as input.\n2. Self-correction handling: the last correction should be used.\n3. Filler words removed.\n4. Punctuation, capitalization, and formatting correct.\n5. The output should be concise and ready to send.",
+  "weights": {
+    "language": 0.3,
+    "filler": 0.2,
+    "judge": 0.5
+  },
+  "test_cases": [
+    {
+      "id": "en_001",
+      "language": "en",
+      "input": "ummm... let's meet at 5 pm... actually 6 pm. also please bring the, uh, documents.",
+      "expected": "Let's meet at 6 pm. Also, please bring the documents."
+    },
+    {
+      "id": "en_002",
+      "language": "en",
+      "input": "so we need to buy apples bananas and oranges. first umm check the price. second compare quality.",
+      "expected": "We need to buy apples, bananas, and oranges.\n- First, check the price.\n- Second, compare quality."
+    },
+    {
+      "id": "en_003",
+      "language": "en",
+      "input": "hi john i was wondering if we could reschedule our meeting from tuesday to wednesday um actually thursday at 10 am thanks",
+      "expected": "Hi John,\n\nI was wondering if we could reschedule our meeting from Tuesday to Thursday at 10 am.\n\nThanks."
+    },
+    {
+      "id": "en_004",
+      "language": "en",
+      "input": "yeah so basically I think we should like um focus on the main project first and then maybe uh we can look at the secondary tasks later",
+      "expected": "I think we should focus on the main project first, and then maybe we can look at the secondary tasks later."
+    },
+    {
+      "id": "en_005",
+      "language": "en",
+      "input": "okay so the meeting agenda is one introduction two project updates three budget review and four next steps",
+      "expected": "Okay, so the meeting agenda is:\n1. Introduction\n2. Project updates\n3. Budget review\n4. Next steps"
+    },
+    {
+      "id": "en_006",
+      "language": "en",
+      "input": "dear ms. johnson i am writing to apply for the marketing position i saw on linkedin actually it was on indeed um please find my resume attached",
+      "expected": "Dear Ms. Johnson,\n\nI am writing to apply for the marketing position I saw on Indeed. Please find my resume attached."
+    },
+    {
+      "id": "en_007",
+      "language": "en",
+      "input": "the report should include an executive summary um a methodology section and finally a conclusion",
+      "expected": "The report should include an executive summary, a methodology section, and finally a conclusion."
+    },
+    {
+      "id": "en_008",
+      "language": "en",
+      "input": "can you send me the file by eod today um actually tomorrow morning would be better thanks",
+      "expected": "Can you send me the file by tomorrow morning? Thanks."
+    },
+    {
+      "id": "en_009",
+      "language": "en",
+      "input": "so the three main points are one cost reduction two process improvement and three customer satisfaction",
+      "expected": "The three main points are:\n1. Cost reduction\n2. Process improvement\n3. Customer satisfaction"
+    },
+    {
+      "id": "en_010",
+      "language": "en",
+      "input": "hey team just a reminder that our weekly sync is at 9 am um wait it's at 10 am now please update your calendars",
+      "expected": "Hey team, just a reminder that our weekly sync is at 10 am now. Please update your calendars."
+    },
+    {
+      "id": "en_011",
+      "language": "en",
+      "input": "i'd like to order a large pepperoni pizza uh actually make it a medium with extra cheese and a side of garlic bread",
+      "expected": "I'd like to order a medium pizza with extra cheese and a side of garlic bread."
+    },
+    {
+      "id": "en_012",
+      "language": "en",
+      "input": "the presentation will cover market trends competitor analysis and our growth strategy",
+      "expected": "The presentation will cover market trends, competitor analysis, and our growth strategy."
+    },
+    {
+      "id": "en_013",
+      "language": "en",
+      "input": "please remember to bring your laptop charger and notebook to the offsite um also don't forget your badge",
+      "expected": "Please remember to bring your laptop, charger, and notebook to the offsite. Also, don't forget your badge."
+    },
+    {
+      "id": "en_014",
+      "language": "en",
+      "input": "so what happened was we missed the deadline because of a miscommunication between teams and then the client got upset",
+      "expected": "What happened was we missed the deadline because of a miscommunication between teams, and then the client got upset."
+    },
+    {
+      "id": "en_015",
+      "language": "en",
+      "input": "i think the new feature should include a search bar um filters and a sort option",
+      "expected": "I think the new feature should include a search bar, filters, and a sort option."
+    },
+    {
+      "id": "en_016",
+      "language": "en",
+      "input": "the room is booked for 2 pm on friday actually it's for 3 pm please confirm the time with the front desk",
+      "expected": "The room is booked for 3 pm on Friday. Please confirm the time with the front desk."
+    },
+    {
+      "id": "en_017",
+      "language": "en",
+      "input": "we need to improve the onboarding process by simplifying the forms reducing the number of steps and providing clearer instructions",
+      "expected": "We need to improve the onboarding process by simplifying the forms, reducing the number of steps, and providing clearer instructions."
+    },
+    {
+      "id": "en_018",
+      "language": "en",
+      "input": "hey just wanted to let you know that i'll be working from home tomorrow um actually i'll be in the office after all",
+      "expected": "Hey, just wanted to let you know that I'll be in the office after all."
+    },
+    {
+      "id": "en_019",
+      "language": "en",
+      "input": "the invoice should list the item description quantity unit price and total amount",
+      "expected": "The invoice should list the item description, quantity, unit price, and total amount."
+    },
+    {
+      "id": "en_020",
+      "language": "en",
+      "input": "okay so to reset your password click on forgot password then enter your email and check your inbox for the link",
+      "expected": "To reset your password, click on \"Forgot password,\" then enter your email and check your inbox for the link."
+    },
+    {
+      "id": "de_001",
+      "language": "de",
+      "input": "ähm... wir treffen uns um 17 Uhr... eigentlich 18 Uhr. Bitte bring die Unterlagen mit.",
+      "expected": "Wir treffen uns um 18 Uhr. Bitte bring die Unterlagen mit."
+    },
+    {
+      "id": "de_002",
+      "language": "de",
+      "input": "also wir müssen noch Brot Käse und Wurst kaufen ähm und vielleicht auch Obst",
+      "expected": "Wir müssen noch Brot, Käse und Wurst kaufen, und vielleicht auch Obst."
+    },
+    {
+      "id": "de_003",
+      "language": "de",
+      "input": "hallo herr müller ich wollte fragen ob wir den termin auf donnerstag verschieben können eigentlich auf freitag",
+      "expected": "Hallo Herr Müller,\n\nich wollte fragen, ob wir den Termin auf Freitag verschieben können."
+    },
+    {
+      "id": "de_004",
+      "language": "de",
+      "input": "äh die präsentation sollte folgende punkte enthalten einleitung hauptteil und schluss",
+      "expected": "Die Präsentation sollte folgende Punkte enthalten: Einleitung, Hauptteil und Schluss."
+    },
+    {
+      "id": "de_005",
+      "language": "de",
+      "input": "kannst du mir die datei bitte bis heute abend schicken ähm morgen früh wäre besser",
+      "expected": "Kannst du mir die Datei bitte morgen früh schicken?"
+    },
+    {
+      "id": "de_006",
+      "language": "de",
+      "input": "wir haben drei optionen erstens kosten senken zweitens prozesse optimieren drittens kundenzufriedenheit erhöhen",
+      "expected": "Wir haben drei Optionen:\n1. Kosten senken\n2. Prozesse optimieren\n3. Kundenzufriedenheit erhöhen"
+    },
+    {
+      "id": "de_007",
+      "language": "de",
+      "input": "ich möchte eine pizza bestellen mit extra käse ähm eigentlich ohne zwiebeln und mit schinken",
+      "expected": "Ich möchte eine Pizza bestellen, ohne Zwiebeln und mit Schinken."
+    },
+    {
+      "id": "de_008",
+      "language": "de",
+      "input": "der bericht sollte eine zusammenfassung eine methodik und ein fazit enthalten",
+      "expected": "Der Bericht sollte eine Zusammenfassung, eine Methodik und ein Fazit enthalten."
+    },
+    {
+      "id": "de_009",
+      "language": "de",
+      "input": "hey team erinnerung unser wöchentliches meeting ist um 9 uhr ähm doch um 10 uhr bitte kalender aktualisieren",
+      "expected": "Hey Team, Erinnerung: Unser wöchentliches Meeting ist um 10 Uhr. Bitte Kalender aktualisieren."
+    },
+    {
+      "id": "de_010",
+      "language": "de",
+      "input": "wir sollten uns auf das hauptprojekt konzentrieren und danach die nebenaufgaben angehen",
+      "expected": "Wir sollten uns auf das Hauptprojekt konzentrieren und danach die Nebenaufgaben angehen."
+    },
+    {
+      "id": "fr_001",
+      "language": "fr",
+      "input": "euh... on se voit à 17h... enfin 18h. Apporte les documents.",
+      "expected": "On se voit à 18h. Apporte les documents."
+    },
+    {
+      "id": "fr_002",
+      "language": "fr",
+      "input": "donc il faut acheter du pain du fromage et du vin euh et peut-être des fruits",
+      "expected": "Il faut acheter du pain, du fromage et du vin, et peut-être des fruits."
+    },
+    {
+      "id": "fr_003",
+      "language": "fr",
+      "input": "bonjour monsieur dupont je voulais savoir si on peut reporter la réunion à jeudi enfin vendredi",
+      "expected": "Bonjour Monsieur Dupont,\n\nje voulais savoir si on peut reporter la réunion à vendredi."
+    },
+    {
+      "id": "fr_004",
+      "language": "fr",
+      "input": "euh la présentation doit inclure une introduction un développement et une conclusion",
+      "expected": "La présentation doit inclure une introduction, un développement et une conclusion."
+    },
+    {
+      "id": "fr_005",
+      "language": "fr",
+      "input": "peux-tu m'envoyer le fichier ce soir euh demain matin serait mieux",
+      "expected": "Peux-tu m'envoyer le fichier demain matin ?"
+    },
+    {
+      "id": "fr_006",
+      "language": "fr",
+      "input": "nous avons trois options un réduire les coûts deux optimiser les processus trois améliorer la satisfaction client",
+      "expected": "Nous avons trois options :\n1. Réduire les coûts\n2. Optimiser les processus\n3. Améliorer la satisfaction client"
+    },
+    {
+      "id": "fr_007",
+      "language": "fr",
+      "input": "je voudrais commander une pizza avec du fromage euh en fait sans oignons et avec du jambon",
+      "expected": "Je voudrais commander une pizza, sans oignons et avec du jambon."
+    },
+    {
+      "id": "fr_008",
+      "language": "fr",
+      "input": "le rapport doit contenir un résumé une méthodologie et une conclusion",
+      "expected": "Le rapport doit contenir un résumé, une méthodologie et une conclusion."
+    },
+    {
+      "id": "fr_009",
+      "language": "fr",
+      "input": "salut équipe rappel notre réunion hebdomadaire est à 9h euh finalement à 10h mettez à jour vos agendas",
+      "expected": "Salut équipe, rappel : notre réunion hebdomadaire est à 10h. Mettez à jour vos agendas."
+    },
+    {
+      "id": "fr_010",
+      "language": "fr",
+      "input": "nous devrions nous concentrer sur le projet principal puis aborder les tâches secondaires",
+      "expected": "Nous devrions nous concentrer sur le projet principal, puis aborder les tâches secondaires."
+    },
+    {
+      "id": "es_001",
+      "language": "es",
+      "input": "eh... nos vemos a las 5... mejor a las 6. Trae los papeles.",
+      "expected": "Nos vemos a las 6. Trae los papeles."
+    },
+    {
+      "id": "es_002",
+      "language": "es",
+      "input": "entonces hay que comprar pan queso y vino eh y tal vez fruta",
+      "expected": "Hay que comprar pan, queso y vino, y tal vez fruta."
+    },
+    {
+      "id": "es_003",
+      "language": "es",
+      "input": "hola señor garcía quería saber si podemos mover la reunión al jueves mejor al viernes",
+      "expected": "Hola Señor García,\n\nquería saber si podemos mover la reunión al viernes."
+    },
+    {
+      "id": "es_004",
+      "language": "es",
+      "input": "eh la presentación debe incluir una introducción un desarrollo y una conclusión",
+      "expected": "La presentación debe incluir una introducción, un desarrollo y una conclusión."
+    },
+    {
+      "id": "es_005",
+      "language": "es",
+      "input": "puedes enviarme el archivo esta noche eh mañana por la mañana sería mejor",
+      "expected": "¿Puedes enviarme el archivo mañana por la mañana?"
+    },
+    {
+      "id": "es_006",
+      "language": "es",
+      "input": "tenemos tres opciones uno reducir costes dos optimizar procesos tres mejorar la satisfacción del cliente",
+      "expected": "Tenemos tres opciones:\n1. Reducir costes\n2. Optimizar procesos\n3. Mejorar la satisfacción del cliente"
+    },
+    {
+      "id": "es_007",
+      "language": "es",
+      "input": "quiero pedir una pizza con queso eh en realidad sin cebolla y con jamón",
+      "expected": "Quiero pedir una pizza, sin cebolla y con jamón."
+    },
+    {
+      "id": "es_008",
+      "language": "es",
+      "input": "el informe debe contener un resumen una metodología y una conclusión",
+      "expected": "El informe debe contener un resumen, una metodología y una conclusión."
+    },
+    {
+      "id": "es_009",
+      "language": "es",
+      "input": "hola equipo recordatorio nuestra reunión semanal es a las 9 eh en realidad a las 10 actualizad vuestros calendarios",
+      "expected": "Hola equipo, recordatorio: nuestra reunión semanal es a las 10. Actualizad vuestros calendarios."
+    },
+    {
+      "id": "es_010",
+      "language": "es",
+      "input": "deberíamos centrarnos en el proyecto principal y luego abordar las tareas secundarias",
+      "expected": "Deberíamos centrarnos en el proyecto principal y luego abordar las tareas secundarias."
+    },
+    {
+      "id": "it_001",
+      "language": "it",
+      "input": "ehm... ci vediamo alle 17... anzi alle 18. Porta i documenti.",
+      "expected": "Ci vediamo alle 18. Porta i documenti."
+    },
+    {
+      "id": "it_002",
+      "language": "it",
+      "input": "allora dobbiamo comprare pane formaggio e vino ehm e forse frutta",
+      "expected": "Dobbiamo comprare pane, formaggio e vino, e forse frutta."
+    },
+    {
+      "id": "it_003",
+      "language": "it",
+      "input": "salve signor rossi volevo sapere se possiamo spostare la riunione a giovedì anzi venerdì",
+      "expected": "Salve Signor Rossi,\n\nvolevo sapere se possiamo spostare la riunione a venerdì."
+    },
+    {
+      "id": "it_004",
+      "language": "it",
+      "input": "ehm la presentazione deve includere un'introduzione uno sviluppo e una conclusione",
+      "expected": "La presentazione deve includere un'introduzione, uno sviluppo e una conclusione."
+    },
+    {
+      "id": "it_005",
+      "language": "it",
+      "input": "puoi inviarmi il file stasera ehm domani mattina sarebbe meglio",
+      "expected": "Puoi inviarmi il file domani mattina?"
+    },
+    {
+      "id": "it_006",
+      "language": "it",
+      "input": "abbiamo tre opzioni uno ridurre i costi due ottimizzare i processi tre migliorare la soddisfazione del cliente",
+      "expected": "Abbiamo tre opzioni:\n1. Ridurre i costi\n2. Ottimizzare i processi\n3. Migliorare la soddisfazione del cliente"
+    },
+    {
+      "id": "it_007",
+      "language": "it",
+      "input": "vorrei ordinare una pizza con formaggio ehm in realtà senza cipolla e con prosciutto",
+      "expected": "Vorrei ordinare una pizza, senza cipolla e con prosciutto."
+    },
+    {
+      "id": "it_008",
+      "language": "it",
+      "input": "il rapporto deve contenere un riepilogo una metodologia e una conclusione",
+      "expected": "Il rapporto deve contenere un riepilogo, una metodologia e una conclusione."
+    },
+    {
+      "id": "it_009",
+      "language": "it",
+      "input": "ciao team promemoria la nostra riunione settimanale è alle 9 ehm in realtà alle 10 aggiornate i calendari",
+      "expected": "Ciao team, promemoria: la nostra riunione settimanale è alle 10. Aggiornate i calendari."
+    },
+    {
+      "id": "it_010",
+      "language": "it",
+      "input": "dovremmo concentrarci sul progetto principale e poi affrontare i compiti secondari",
+      "expected": "Dovremmo concentrarci sul progetto principale e poi affrontare i compiti secondari."
+    },
+    {
+      "id": "pt_001",
+      "language": "pt",
+      "input": "hmm... nos vemos às 17... na verdade às 18. Traga os documentos.",
+      "expected": "Nos vemos às 18. Traga os documentos."
+    },
+    {
+      "id": "pt_002",
+      "language": "pt",
+      "input": "então temos que comprar pão queijo e vinho hmm e talvez fruta",
+      "expected": "Temos que comprar pão, queijo e vinho, e talvez fruta."
+    },
+    {
+      "id": "pt_003",
+      "language": "pt",
+      "input": "olá senhor silva queria saber se podemos mudar a reunião para quinta na verdade sexta",
+      "expected": "Olá Senhor Silva,\n\nqueria saber se podemos mudar a reunião para sexta."
+    },
+    {
+      "id": "pt_004",
+      "language": "pt",
+      "input": "hmm a apresentação deve incluir uma introdução um desenvolvimento e uma conclusão",
+      "expected": "A apresentação deve incluir uma introdução, um desenvolvimento e uma conclusão."
+    },
+    {
+      "id": "pt_005",
+      "language": "pt",
+      "input": "podes enviar-me o ficheiro esta noite hmm amanhã de manhã seria melhor",
+      "expected": "Podes enviar-me o ficheiro amanhã de manhã?"
+    },
+    {
+      "id": "pt_006",
+      "language": "pt",
+      "input": "temos três opções um reduzir custos dois otimizar processos três melhorar a satisfação do cliente",
+      "expected": "Temos três opções:\n1. Reduzir custos\n2. Otimizar processos\n3. Melhorar a satisfação do cliente"
+    },
+    {
+      "id": "pt_007",
+      "language": "pt",
+      "input": "quero pedir uma pizza com queijo hmm na verdade sem cebola e com presunto",
+      "expected": "Quero pedir uma pizza, sem cebola e com presunto."
+    },
+    {
+      "id": "pt_008",
+      "language": "pt",
+      "input": "o relatório deve conter um resumo uma metodologia e uma conclusão",
+      "expected": "O relatório deve conter um resumo, uma metodologia e uma conclusão."
+    },
+    {
+      "id": "pt_009",
+      "language": "pt",
+      "input": "olá equipa lembrete a nossa reunião semanal é às 9 hmm na verdade às 10 atualizem os calendários",
+      "expected": "Olá equipa, lembrete: a nossa reunião semanal é às 10. Atualizem os calendários."
+    },
+    {
+      "id": "pt_010",
+      "language": "pt",
+      "input": "devemos concentrar-nos no projeto principal e depois abordar as tarefas secundárias",
+      "expected": "Devemos concentrar-nos no projeto principal e depois abordar as tarefas secundárias."
+    },
+    {
+      "id": "nl_001",
+      "language": "nl",
+      "input": "ehm... we spreken af om 17 uur... eigenlijk 18 uur. Neem de documenten mee.",
+      "expected": "We spreken af om 18 uur. Neem de documenten mee."
+    },
+    {
+      "id": "nl_002",
+      "language": "nl",
+      "input": "dus we moeten brood kaas en wijn kopen ehm en misschien fruit",
+      "expected": "We moeten brood, kaas en wijn kopen, en misschien fruit."
+    },
+    {
+      "id": "nl_003",
+      "language": "nl",
+      "input": "hallo meneer jansen ik wilde vragen of we de vergadering naar donderdag kunnen verplaatsen eigenlijk vrijdag",
+      "expected": "Hallo meneer Jansen,\n\nik wilde vragen of we de vergadering naar vrijdag kunnen verplaatsen."
+    },
+    {
+      "id": "nl_004",
+      "language": "nl",
+      "input": "ehm de presentatie moet een inleiding een kern en een conclusie bevatten",
+      "expected": "De presentatie moet een inleiding, een kern en een conclusie bevatten."
+    },
+    {
+      "id": "nl_005",
+      "language": "nl",
+      "input": "kun je me het bestand vanavond sturen ehm morgenochtend zou beter zijn",
+      "expected": "Kun je me het bestand morgenochtend sturen?"
+    },
+    {
+      "id": "nl_006",
+      "language": "nl",
+      "input": "we hebben drie opties een kosten verlagen twee processen optimaliseren drie klanttevredenheid verbeteren",
+      "expected": "We hebben drie opties:\n1. Kosten verlagen\n2. Processen optimaliseren\n3. Klanttevredenheid verbeteren"
+    },
+    {
+      "id": "nl_007",
+      "language": "nl",
+      "input": "ik wil een pizza bestellen met kaas ehm eigenlijk zonder ui en met ham",
+      "expected": "Ik wil een pizza bestellen, zonder ui en met ham."
+    },
+    {
+      "id": "nl_008",
+      "language": "nl",
+      "input": "het rapport moet een samenvatting een methodologie en een conclusie bevatten",
+      "expected": "Het rapport moet een samenvatting, een methodologie en een conclusie bevatten."
+    },
+    {
+      "id": "nl_009",
+      "language": "nl",
+      "input": "hallo team herinnering onze wekelijkse vergadering is om 9 uur ehm eigenlijk om 10 uur update jullie agenda's",
+      "expected": "Hallo team, herinnering: onze wekelijkse vergadering is om 10 uur. Update jullie agenda's."
+    },
+    {
+      "id": "nl_010",
+      "language": "nl",
+      "input": "we moeten ons concentreren op het hoofdproject en daarna de secundaire taken aanpakken",
+      "expected": "We moeten ons concentreren op het hoofdproject en daarna de secundaire taken aanpakken."
+    },
+    {
+      "id": "pl_001",
+      "language": "pl",
+      "input": "yyy... spotykamy się o 17... właściwie o 18. Przynieś dokumenty.",
+      "expected": "Spotykamy się o 18. Przynieś dokumenty."
+    },
+    {
+      "id": "pl_002",
+      "language": "pl",
+      "input": "więc musimy kupić chleb ser i wino yyy i może owoce",
+      "expected": "Musimy kupić chleb, ser i wino, i może owoce."
+    },
+    {
+      "id": "pl_003",
+      "language": "pl",
+      "input": "dzień dobry panie kowalski chciałem zapytać czy możemy przesunąć spotkanie na czwartek właściwie piątek",
+      "expected": "Dzień dobry Panie Kowalski,\n\nchciałem zapytać, czy możemy przesunąć spotkanie na piątek."
+    },
+    {
+      "id": "pl_004",
+      "language": "pl",
+      "input": "yyy prezentacja powinna zawierać wstęp rozwinięcie i zakończenie",
+      "expected": "Prezentacja powinna zawierać wstęp, rozwinięcie i zakończenie."
+    },
+    {
+      "id": "pl_005",
+      "language": "pl",
+      "input": "możesz wysłać mi plik dziś wieczorem yyy jutro rano byłoby lepiej",
+      "expected": "Możesz wysłać mi plik jutro rano?"
+    },
+    {
+      "id": "ru_001",
+      "language": "ru",
+      "input": "эээ... встречаемся в 17... вообще-то в 18. Принеси документы.",
+      "expected": "Встречаемся в 18. Принеси документы."
+    },
+    {
+      "id": "ru_002",
+      "language": "ru",
+      "input": "итак нам нужно купить хлеб сыр и вино эээ и возможно фрукты",
+      "expected": "Нам нужно купить хлеб, сыр и вино, и возможно фрукты."
+    },
+    {
+      "id": "ru_003",
+      "language": "ru",
+      "input": "здравствуйте господин иванов я хотел спросить можем ли мы перенести встречу на четверг вообще-то пятницу",
+      "expected": "Здравствуйте, господин Иванов,\n\nя хотел спросить, можем ли мы перенести встречу на пятницу."
+    },
+    {
+      "id": "ru_004",
+      "language": "ru",
+      "input": "эээ презентация должна включать введение основную часть и заключение",
+      "expected": "Презентация должна включать введение, основную часть и заключение."
+    },
+    {
+      "id": "ru_005",
+      "language": "ru",
+      "input": "можешь отправить мне файл сегодня вечером эээ завтра утром было бы лучше",
+      "expected": "Можешь отправить мне файл завтра утром?"
+    },
+    {
+      "id": "uk_001",
+      "language": "uk",
+      "input": "еее... зустрічаємось о 17... насправді о 18. Принеси документи.",
+      "expected": "Зустрічаємось о 18. Принеси документи."
+    },
+    {
+      "id": "uk_002",
+      "language": "uk",
+      "input": "отже нам потрібно купити хліб сир і вино еее і можливо фрукти",
+      "expected": "Нам потрібно купити хліб, сир і вино, і можливо фрукти."
+    },
+    {
+      "id": "uk_003",
+      "language": "uk",
+      "input": "добрий день пане петренко я хотів запитати чи можемо ми перенести зустріч на четвер насправді п'ятницю",
+      "expected": "Добрий день, пане Петренко,\n\nя хотів запитати, чи можемо ми перенести зустріч на п'ятницю."
+    },
+    {
+      "id": "uk_004",
+      "language": "uk",
+      "input": "еее презентація повинна містити вступ основну частину і висновок",
+      "expected": "Презентація повинна містити вступ, основну частину і висновок."
+    },
+    {
+      "id": "uk_005",
+      "language": "uk",
+      "input": "можеш надіслати мені файл сьогодні ввечері еее завтра вранці було б краще",
+      "expected": "Можеш надіслати мені файл завтра вранці?"
+    },
+    {
+      "id": "cs_001",
+      "language": "cs",
+      "input": "eee... setkáme se v 17... vlastně v 18. Přines dokumenty.",
+      "expected": "Setkáme se v 18. Přines dokumenty."
+    },
+    {
+      "id": "cs_002",
+      "language": "cs",
+      "input": "takže musíme koupit chléb sýr a víno eee a možná ovoce",
+      "expected": "Musíme koupit chléb, sýr a víno, a možná ovoce."
+    },
+    {
+      "id": "cs_003",
+      "language": "cs",
+      "input": "dobrý den pane nováku chtěl jsem se zeptat jestli můžeme přesunout schůzku na čtvrtek vlastně pátek",
+      "expected": "Dobrý den, pane Nováku,\n\nchtěl jsem se zeptat, jestli můžeme přesunout schůzku na pátek."
+    },
+    {
+      "id": "cs_004",
+      "language": "cs",
+      "input": "eee prezentace by měla obsahovat úvod hlavní část a závěr",
+      "expected": "Prezentace by měla obsahovat úvod, hlavní část a závěr."
+    },
+    {
+      "id": "cs_005",
+      "language": "cs",
+      "input": "můžeš mi poslat soubor dnes večer eee zítra ráno by bylo lepší",
+      "expected": "Můžeš mi poslat soubor zítra ráno?"
+    },
+    {
+      "id": "sv_001",
+      "language": "sv",
+      "input": "eh... vi ses klockan 17... egentligen 18. Ta med dokumenten.",
+      "expected": "Vi ses klockan 18. Ta med dokumenten."
+    },
+    {
+      "id": "sv_002",
+      "language": "sv",
+      "input": "så vi måste köpa bröd ost och vin eh och kanske frukt",
+      "expected": "Vi måste köpa bröd, ost och vin, och kanske frukt."
+    },
+    {
+      "id": "sv_003",
+      "language": "sv",
+      "input": "hej herr andersson jag undrade om vi kan flytta mötet till torsdag egentligen fredag",
+      "expected": "Hej Herr Andersson,\n\njag undrade om vi kan flytta mötet till fredag."
+    },
+    {
+      "id": "sv_004",
+      "language": "sv",
+      "input": "eh presentationen bör innehålla en inledning en huvuddel och en slutsats",
+      "expected": "Presentationen bör innehålla en inledning, en huvuddel och en slutsats."
+    },
+    {
+      "id": "sv_005",
+      "language": "sv",
+      "input": "kan du skicka mig filen ikväll eh imorgon bitti vore bättre",
+      "expected": "Kan du skicka mig filen imorgon bitti?"
+    },
+    {
+      "id": "fi_001",
+      "language": "fi",
+      "input": "öö... tapaamme kello 17... itse asiassa 18. Tuo asiakirjat.",
+      "expected": "Tapaamme kello 18. Tuo asiakirjat."
+    },
+    {
+      "id": "fi_002",
+      "language": "fi",
+      "input": "joten meidän täytyy ostaa leipää juustoa ja viiniä öö ja ehkä hedelmiä",
+      "expected": "Meidän täytyy ostaa leipää, juustoa ja viiniä, ja ehkä hedelmiä."
+    },
+    {
+      "id": "fi_003",
+      "language": "fi",
+      "input": "hei herra virtanen halusin kysyä voimmeko siirtää kokouksen torstaihin itse asiassa perjantaihin",
+      "expected": "Hei Herra Virtanen,\n\nhalusin kysyä, voimmeko siirtää kokouksen perjantaihin."
+    },
+    {
+      "id": "fi_004",
+      "language": "fi",
+      "input": "öö esityksen tulisi sisältää johdanto pääosa ja johtopäätös",
+      "expected": "Esityksen tulisi sisältää johdanto, pääosa ja johtopäätös."
+    },
+    {
+      "id": "fi_005",
+      "language": "fi",
+      "input": "voitko lähettää minulle tiedoston tänä iltana öö huomenna aamulla olisi parempi",
+      "expected": "Voitko lähettää minulle tiedoston huomenna aamulla?"
+    },
+    {
+      "id": "el_001",
+      "language": "el",
+      "input": "εεε... συναντιόμαστε στις 5... βασικά στις 6. Φέρε τα έγγραφα.",
+      "expected": "Συναντιόμαστε στις 6. Φέρε τα έγγραφα."
+    },
+    {
+      "id": "el_002",
+      "language": "el",
+      "input": "λοιπόν πρέπει να αγοράσουμε ψωμί τυρί και κρασί εεε και ίσως φρούτα",
+      "expected": "Πρέπει να αγοράσουμε ψωμί, τυρί και κρασί, και ίσως φρούτα."
+    },
+    {
+      "id": "el_003",
+      "language": "el",
+      "input": "γεια σας κύριε παπαδόπουλε ήθελα να ρωτήσω αν μπορούμε να μεταφέρουμε τη συνάντηση την Πέμπτη βασικά την Παρασκευή",
+      "expected": "Γεια σας, κύριε Παπαδόπουλε,\n\nήθελα να ρωτήσω αν μπορούμε να μεταφέρουμε τη συνάντηση την Παρασκευή."
+    },
+    {
+      "id": "el_004",
+      "language": "el",
+      "input": "εεε η παρουσίαση πρέπει να περιλαμβάνει εισαγωγή κύριο μέρος και συμπέρασμα",
+      "expected": "Η παρουσίαση πρέπει να περιλαμβάνει εισαγωγή, κύριο μέρος και συμπέρασμα."
+    },
+    {
+      "id": "el_005",
+      "language": "el",
+      "input": "μπορείς να μου στείλεις το αρχείο απόψε εεε αύριο το πρωί θα ήταν καλύτερα",
+      "expected": "Μπορείς να μου στείλεις το αρχείο αύριο το πρωί;"
+    },
+    {
+      "id": "tr_001",
+      "language": "tr",
+      "input": "eee... saat 5'te buluşalım... aslında 6'da. Belgeleri getir.",
+      "expected": "Saat 6'da buluşalım. Belgeleri getir."
+    },
+    {
+      "id": "tr_002",
+      "language": "tr",
+      "input": "yani ekmek peynir ve şarap almamız gerekiyor eee ve belki meyve",
+      "expected": "Ekmek, peynir ve şarap almamız gerekiyor, ve belki meyve."
+    },
+    {
+      "id": "tr_003",
+      "language": "tr",
+      "input": "merhaba sayın yılmaz toplantıyı perşembeye aslında cumaya erteleyebilir miyiz diye soracaktım",
+      "expected": "Merhaba Sayın Yılmaz,\n\ntoplantıyı cumaya erteleyebilir miyiz diye soracaktım."
+    },
+    {
+      "id": "tr_004",
+      "language": "tr",
+      "input": "eee sunum giriş gelişme ve sonuç içermelidir",
+      "expected": "Sunum giriş, gelişme ve sonuç içermelidir."
+    },
+    {
+      "id": "tr_005",
+      "language": "tr",
+      "input": "dosyayı bu akşam gönderebilir misin eee yarın sabah daha iyi olur",
+      "expected": "Dosyayı yarın sabah gönderebilir misin?"
+    },
+    {
+      "id": "hi_001",
+      "language": "hi",
+      "input": "अरे... हम 5 बजे मिलते हैं... असल में 6 बजे। दस्तावेज़ लाओ।",
+      "expected": "हम 6 बजे मिलते हैं। दस्तावेज़ लाओ।"
+    },
+    {
+      "id": "hi_002",
+      "language": "hi",
+      "input": "तो हमें ब्रेड पनीर और वाइन खरीदनी है अरे और शायद फल",
+      "expected": "हमें ब्रेड, पनीर और वाइन खरीदनी है, और शायद फल।"
+    },
+    {
+      "id": "hi_003",
+      "language": "hi",
+      "input": "नमस्ते श्री शर्मा मैं पूछना चाहता था कि क्या हम बैठक को गुरुवार असल में शुक्रवार कर सकते हैं",
+      "expected": "नमस्ते श्री शर्मा,\n\nमैं पूछना चाहता था कि क्या हम बैठक को शुक्रवार कर सकते हैं।"
+    },
+    {
+      "id": "hi_004",
+      "language": "hi",
+      "input": "अरे प्रस्तुति में परिचय मुख्य भाग और निष्कर्ष शामिल होना चाहिए",
+      "expected": "प्रस्तुति में परिचय, मुख्य भाग और निष्कर्ष शामिल होना चाहिए।"
+    },
+    {
+      "id": "hi_005",
+      "language": "hi",
+      "input": "क्या तुम मुझे फ़ाइल आज रात भेज सकते हो अरे कल सुबह बेहतर होगा",
+      "expected": "क्या तुम मुझे फ़ाइल कल सुबह भेज सकते हो?"
+    },
+    {
+      "id": "ar_001",
+      "language": "ar",
+      "input": "اممم... نلتقي الساعة 5... في الواقع 6. أحضر المستندات.",
+      "expected": "نلتقي الساعة 6. أحضر المستندات."
+    },
+    {
+      "id": "ar_002",
+      "language": "ar",
+      "input": "إذن علينا شراء خبز وجبن ونبيذ اممم وربما فواكه",
+      "expected": "علينا شراء خبز وجبن ونبيذ، وربما فواكه."
+    },
+    {
+      "id": "ar_003",
+      "language": "ar",
+      "input": "مرحباً سيد أحمد أردت أن أسأل إذا كان يمكننا نقل الاجتماع إلى الخميس في الواقع الجمعة",
+      "expected": "مرحباً سيد أحمد،\n\nأردت أن أسأل إذا كان يمكننا نقل الاجتماع إلى الجمعة."
+    },
+    {
+      "id": "ar_004",
+      "language": "ar",
+      "input": "اممم العرض يجب أن يتضمن مقدمة وجسماً وخاتمة",
+      "expected": "العرض يجب أن يتضمن مقدمة وجسماً وخاتمة."
+    },
+    {
+      "id": "ar_005",
+      "language": "ar",
+      "input": "هل يمكنك إرسال الملف الليلة اممم غداً صباحاً سيكون أفضل",
+      "expected": "هل يمكنك إرسال الملف غداً صباحاً؟"
+    },
+    {
+      "id": "zh_001",
+      "language": "zh-cn",
+      "input": "嗯...我们五点见...其实六点。请带文件。",
+      "expected": "我们六点见。请带文件。"
+    },
+    {
+      "id": "zh_002",
+      "language": "zh-cn",
+      "input": "所以我们需要买面包奶酪和酒 嗯 也许还有水果",
+      "expected": "我们需要买面包、奶酪和酒，也许还有水果。"
+    },
+    {
+      "id": "zh_003",
+      "language": "zh-cn",
+      "input": "你好王先生 我想问我们能不能把会议改到周四 其实周五",
+      "expected": "你好王先生，\n\n我想问我们能不能把会议改到周五。"
+    },
+    {
+      "id": "zh_004",
+      "language": "zh-cn",
+      "input": "嗯 演示应该包括引言正文和结论",
+      "expected": "演示应该包括引言、正文和结论。"
+    },
+    {
+      "id": "zh_005",
+      "language": "zh-cn",
+      "input": "你能今晚把文件发给我吗 嗯 明天早上更好",
+      "expected": "你能明天早上把文件发给我吗？"
+    },
+    {
+      "id": "ja_001",
+      "language": "ja",
+      "input": "あの...5時に会いましょう...いや6時。書類を持ってきてください。",
+      "expected": "6時に会いましょう。書類を持ってきてください。"
+    },
+    {
+      "id": "ja_002",
+      "language": "ja",
+      "input": "それでパンとチーズとワインを買わないと あの たぶん果物も",
+      "expected": "パンとチーズとワインを買わないと、たぶん果物も。"
+    },
+    {
+      "id": "ja_003",
+      "language": "ja",
+      "input": "こんにちは田中さん 会議を木曜日に変更できますか いや金曜日",
+      "expected": "こんにちは田中さん、\n\n会議を金曜日に変更できますか。"
+    },
+    {
+      "id": "ja_004",
+      "language": "ja",
+      "input": "あの プレゼンには序論本論結論を含めるべきです",
+      "expected": "プレゼンには序論、本論、結論を含めるべきです。"
+    },
+    {
+      "id": "ja_005",
+      "language": "ja",
+      "input": "今夜ファイルを送ってもらえますか あの 明日の朝の方がいいです",
+      "expected": "明日の朝ファイルを送ってもらえますか？"
+    },
+    {
+      "id": "ko_001",
+      "language": "ko",
+      "input": "어... 5시에 만나요... 아니 6시. 서류 가져와 주세요.",
+      "expected": "6시에 만나요. 서류 가져와 주세요."
+    },
+    {
+      "id": "ko_002",
+      "language": "ko",
+      "input": "그래서 빵 치즈 와인을 사야 해 어 그리고 아마 과일도",
+      "expected": "빵, 치즈, 와인을 사야 해, 그리고 아마 과일도."
+    },
+    {
+      "id": "ko_003",
+      "language": "ko",
+      "input": "안녕하세요 김 선생님 회의를 목요일로 변경할 수 있는지 아니 금요일로",
+      "expected": "안녕하세요 김 선생님,\n\n회의를 금요일로 변경할 수 있는지요?"
+    },
+    {
+      "id": "ko_004",
+      "language": "ko",
+      "input": "어 발표에는 서론 본론 결론이 포함되어야 합니다",
+      "expected": "발표에는 서론, 본론, 결론이 포함되어야 합니다."
+    },
+    {
+      "id": "ko_005",
+      "language": "ko",
+      "input": "오늘 밤에 파일 보내줄 수 있어 어 내일 아침이 더 좋아",
+      "expected": "내일 아침에 파일 보내줄 수 있어?"
+    },
+    {
+      "id": "vi_001",
+      "language": "vi",
+      "input": "ờ... gặp nhau lúc 5 giờ... thực ra 6 giờ. Mang tài liệu theo.",
+      "expected": "Gặp nhau lúc 6 giờ. Mang tài liệu theo."
+    },
+    {
+      "id": "vi_002",
+      "language": "vi",
+      "input": "vậy chúng ta cần mua bánh mì phô mai và rượu vang ờ và có thể trái cây",
+      "expected": "Chúng ta cần mua bánh mì, phô mai và rượu vang, và có thể trái cây."
+    },
+    {
+      "id": "vi_003",
+      "language": "vi",
+      "input": "chào ông hùng tôi muốn hỏi liệu chúng ta có thể dời cuộc họp sang thứ năm thực ra thứ sáu",
+      "expected": "Chào ông Hùng,\n\ntôi muốn hỏi liệu chúng ta có thể dời cuộc họp sang thứ sáu."
+    },
+    {
+      "id": "vi_004",
+      "language": "vi",
+      "input": "ờ bài thuyết trình nên bao gồm mở đầu thân bài và kết luận",
+      "expected": "Bài thuyết trình nên bao gồm mở đầu, thân bài và kết luận."
+    },
+    {
+      "id": "vi_005",
+      "language": "vi",
+      "input": "bạn có thể gửi tệp tối nay không ờ sáng mai sẽ tốt hơn",
+      "expected": "Bạn có thể gửi tệp sáng mai không?"
+    },
+    {
+      "id": "th_001",
+      "language": "th",
+      "input": "เอ่อ... เจอกัน 5 โมง... จริง ๆ 6 โมง เอาเอกสารมาด้วย",
+      "expected": "เจอกัน 6 โมง เอาเอกสารมาด้วย"
+    },
+    {
+      "id": "th_002",
+      "language": "th",
+      "input": "งั้นเราต้องซื้อขนมปัง ชีส และไวน์ เอ่อ และอาจจะผลไม้",
+      "expected": "เราต้องซื้อขนมปัง ชีส และไวน์ และอาจจะผลไม้"
+    },
+    {
+      "id": "th_003",
+      "language": "th",
+      "input": "สวัสดีคุณสมชาย ผมอยากถามว่าเราเลื่อนประชุมเป็นวันพฤหัส จริง ๆ วันศุกร์ได้ไหม",
+      "expected": "สวัสดีคุณสมชาย\n\nผมอยากถามว่าเราเลื่อนประชุมเป็นวันศุกร์ได้ไหม"
+    },
+    {
+      "id": "th_004",
+      "language": "th",
+      "input": "เอ่อ งานนำเสนอควรมีบทนำ เนื้อหา และบทสรุป",
+      "expected": "งานนำเสนอควรมีบทนำ เนื้อหา และบทสรุป"
+    },
+    {
+      "id": "th_005",
+      "language": "th",
+      "input": "ส่งไฟล์ให้คืนนี้ได้ไหม เอ่อ พรุ่งนี้เช้าดีกว่า",
+      "expected": "ส่งไฟล์ให้พรุ่งนี้เช้าได้ไหม"
+    },
+    {
+      "id": "id_001",
+      "language": "id",
+      "input": "eh... ketemu jam 5... sebenarnya jam 6. Bawa dokumen.",
+      "expected": "Ketemu jam 6. Bawa dokumen."
+    },
+    {
+      "id": "id_002",
+      "language": "id",
+      "input": "jadi kita perlu beli roti keju dan anggur eh dan mungkin buah",
+      "expected": "Kita perlu beli roti, keju, dan anggur, dan mungkin buah."
+    },
+    {
+      "id": "id_003",
+      "language": "id",
+      "input": "halo pak budi saya ingin tanya apakah kita bisa memindahkan rapat ke kamis sebenarnya jumat",
+      "expected": "Halo Pak Budi,\n\nsaya ingin tanya apakah kita bisa memindahkan rapat ke Jumat."
+    },
+    {
+      "id": "id_004",
+      "language": "id",
+      "input": "eh presentasi harus mencakup pendahuluan isi dan kesimpulan",
+      "expected": "Presentasi harus mencakup pendahuluan, isi, dan kesimpulan."
+    },
+    {
+      "id": "id_005",
+      "language": "id",
+      "input": "bisa kirim file malam ini eh besok pagi lebih baik",
+      "expected": "Bisa kirim file besok pagi?"
+    }
+  ],
+  "llm": {
+    "provider": "mistral",
+    "base_url": "https://api.mistral.ai/v1",
+    "model": "mistral-medium-latest",
+    "roles": {
+      "judge": "",
+      "optimizer": "",
+      "assistant": ""
+    }
+  },
+  "run": {
+    "max_iterations": 5,
+    "threshold": 0.95,
+    "pass_threshold": 0.95,
+    "candidates_per_iteration": 2,
+    "sample_size": 0
+  },
+  "model_runtime": {
+    "active_model_path": "",
+    "n_ctx": 4096,
+    "n_threads": 16,
+    "n_batch": 512,
+    "max_tokens": 512,
+    "temperature": 0.2
+  }
+}

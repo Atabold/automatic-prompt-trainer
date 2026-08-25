@@ -1,0 +1,51 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+data/secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and tooling
+build/
+dist/
+downloads/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Model weights (large binaries)
+models/**/*.gguf
+
+# Generated run data and logs
+data/test_runs/
+data/archive/
+data/models_registry.json
+logs/
+
+# IDE and OS files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Personal settings
+.claude
+.github
